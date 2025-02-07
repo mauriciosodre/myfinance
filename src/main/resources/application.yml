@@ -1,0 +1,9 @@
+spring:
+  profiles:
+    active: local
+server:
+  port: 8080
+
+token:
+  signing:
+    key: ${JWT_SIGNING_KEY:wUU1GMReGll6rMeJRv8tNtJRZeyvCeIQQWvlKxIUC6HfBoBWxOMHeo6okvLK0GTbEvdtDePo8ilIbW4937q9yg==}
