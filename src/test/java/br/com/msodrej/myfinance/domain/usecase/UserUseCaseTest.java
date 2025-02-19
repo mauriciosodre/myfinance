@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
@@ -36,10 +37,16 @@ class UserUseCaseTest {
   @Test
   void save() {
     var user = createUser();
-    when(userRepositoryPort.save(any())).thenReturn(user);
+    user.setPassword(new BCryptPasswordEncoder().encode("password"));
     user.setActive(true);
-    var result = userUseCase.save(user);
+    when(userRepositoryPort.save(any())).thenReturn(user);
+
+    var payload = createUser();
+    payload.setPassword("password");
+    var result = userUseCase.save(payload);
+
     assertThat(result).isNotNull();
+    assertThat(new BCryptPasswordEncoder().matches("password", result.getPassword())).isTrue();
     assertThat(result.getActive()).isTrue();
   }
 
@@ -133,6 +140,23 @@ class UserUseCaseTest {
     when(userRepositoryPort.findAll(any(Pageable.class))).thenReturn(UsersPage);
     var result = userUseCase.findAll(Pageable.unpaged());
     assertThat(result).isNotNull().isNotEmpty().size().isEqualTo(1);
+  }
+
+  @Test
+  void findByUsername() {
+    var user = createUser();
+    when(userRepositoryPort.findByUsername(any())).thenReturn(Optional.of(user));
+    var result = userUseCase.findByUsername("username");
+    assertThat(result).isNotNull();
+    assertThat(result).isEqualTo(user);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenFindUserByUsernameThatNotExists() {
+    when(userRepositoryPort.findByUsername(any())).thenReturn(Optional.empty());
+    Assertions.assertThatThrownBy(() -> userUseCase.findByUsername("username"))
+        .isInstanceOf(SystemErrorException.class)
+        .hasMessageContaining(ERR001.getFormattedMessage());
   }
 
   private User createUser() {
