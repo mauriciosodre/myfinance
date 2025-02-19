@@ -1,0 +1,12 @@
+name: Feature CI
+
+on:
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+    branches:
+      - main
+
+jobs:
+  build_and_test:
+    if: startsWith(github.head_ref, 'feature/')
+    uses: ./.github/workflows/build_and_test.yml

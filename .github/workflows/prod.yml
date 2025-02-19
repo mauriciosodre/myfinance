@@ -1,0 +1,16 @@
+name: PROD CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_test:
+    uses: ./.github/workflows/build_and_test.yml
+  docker_build_and_push_image:
+    needs: build_and_test
+    uses: ./.github/workflows/docker_build_and_push.yml
+    with:
+      IMAGE_NAME: msodrejr/myfinance
+    secrets: inherit
