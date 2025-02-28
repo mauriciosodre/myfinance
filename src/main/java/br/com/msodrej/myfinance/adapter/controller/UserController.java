@@ -92,7 +92,7 @@ public class UserController {
 
   @Operation(summary = "Busca um usuário pelo ID")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "201", description = "Usuário encontrado com sucesso",
+      @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso",
           content = {@Content(mediaType = "application/json",
               schema = @Schema(implementation = UserResponseDTO.class))}),
       @ApiResponse(responseCode = "400", description = "Erro ao buscar usuário pelo ID",
@@ -105,7 +105,7 @@ public class UserController {
 
   @Operation(summary = "Buscar usuários")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "201", description = "Usuários encontrados com sucesso",
+      @ApiResponse(responseCode = "200", description = "Usuários encontrados com sucesso",
           content = {@Content(mediaType = "application/json",
               schema = @Schema(implementation = UserResponseDTO.class))}),
       @ApiResponse(responseCode = "400", description = "Erro ao buscar usuários",
