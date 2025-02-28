@@ -2,6 +2,7 @@ package br.com.msodrej.myfinance.adapter.repository.operations;
 
 import br.com.msodrej.myfinance.adapter.repository.mapper.UserEntityMapper;
 import br.com.msodrej.myfinance.adapter.repository.repositories.UserRepository;
+import br.com.msodrej.myfinance.domain.exceptions.DatabaseErrorException;
 import br.com.msodrej.myfinance.domain.model.User;
 import br.com.msodrej.myfinance.port.repository.UserRepositoryPort;
 import java.util.Optional;
@@ -20,36 +21,64 @@ public class UserOperations implements UserRepositoryPort {
 
   @Override
   public User save(User user) {
-    return mapper.toModel(repository.save(mapper.toEntity(user)));
+    try {
+      return mapper.toModel(repository.save(mapper.toEntity(user)));
+    } catch (Exception e) {
+      throw new DatabaseErrorException("Error saving user, cause: " + e.getMessage());
+    }
   }
 
   @Override
   public Optional<User> findById(UUID id) {
-    return repository.findById(id).map(mapper::toModel);
+    try {
+      return repository.findById(id).map(mapper::toModel);
+    } catch (Exception e) {
+      throw new DatabaseErrorException("User not found, cause: " + e.getMessage());
+    }
   }
 
   @Override
   public Optional<User> findByUsername(String username) {
-    return repository.findByUsername(username).map(mapper::toModel);
+    try {
+      return repository.findByUsername(username).map(mapper::toModel);
+    } catch (Exception e) {
+      throw new DatabaseErrorException("User not found, cause: " + e.getMessage());
+    }
   }
 
   @Override
   public Page<User> findAll(Pageable pageable) {
-    return repository.findAll(pageable).map(mapper::toModel);
+    try {
+      return repository.findAll(pageable).map(mapper::toModel);
+    } catch (Exception e) {
+      throw new DatabaseErrorException("Error finding users, cause: " + e.getMessage());
+    }
   }
 
   @Override
   public void deleteById(UUID id) {
-    repository.deleteById(id);
+    try {
+      repository.deleteById(id);
+    } catch (Exception e) {
+      throw new DatabaseErrorException("Error deleting user, cause: " + e.getMessage());
+    }
   }
 
   @Override
   public void activate(UUID id, boolean active) {
-    repository.activateById(id, active);
+    try {
+      repository.activateById(id, active);
+    } catch (Exception e) {
+      throw new DatabaseErrorException("Error activating user, cause: " + e.getMessage());
+    }
   }
 
   @Override
   public boolean existsById(UUID id) {
-    return repository.existsById(id);
+    try {
+      return repository.existsById(id);
+    } catch (Exception e) {
+      throw new DatabaseErrorException("Error checking if user exists, cause: " + e.getMessage());
+    }
   }
 }

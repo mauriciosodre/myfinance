@@ -1,6 +1,7 @@
 package br.com.msodrej.myfinance.domain.usecase;
 
 import static br.com.msodrej.myfinance.domain.enums.SystemErrorMessage.ERR001;
+import static br.com.msodrej.myfinance.domain.enums.SystemErrorMessage.ERR002;
 
 import br.com.msodrej.myfinance.domain.exceptions.SystemErrorException;
 import br.com.msodrej.myfinance.domain.model.User;
@@ -30,12 +31,12 @@ public class UserUseCase {
 
   public User findById(UUID id) {
     return repositoryPort.findById(id)
-        .orElseThrow(() -> new SystemErrorException(ERR001.getFormattedMessage()));
+        .orElseThrow(() -> new SystemErrorException(ERR001.getFormattedMessage(id)));
   }
 
   public User findByUsername(String username) {
     return repositoryPort.findByUsername(username)
-        .orElseThrow(() -> new SystemErrorException(ERR001.getFormattedMessage()));
+        .orElseThrow(() -> new SystemErrorException(ERR002.getFormattedMessage(username)));
   }
 
   public void deleteById(UUID id) {
@@ -58,7 +59,7 @@ public class UserUseCase {
 
   private void checkIfUserExists(UUID id) {
     if (!existsById(id)) {
-      throw new SystemErrorException(ERR001.getFormattedMessage());
+      throw new SystemErrorException(ERR001.getFormattedMessage(id));
     }
   }
 

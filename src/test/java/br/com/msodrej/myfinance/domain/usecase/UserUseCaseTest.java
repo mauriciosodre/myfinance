@@ -1,6 +1,7 @@
 package br.com.msodrej.myfinance.domain.usecase;
 
 import static br.com.msodrej.myfinance.domain.enums.SystemErrorMessage.ERR001;
+import static br.com.msodrej.myfinance.domain.enums.SystemErrorMessage.ERR002;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
@@ -66,7 +67,7 @@ class UserUseCaseTest {
     when(userRepositoryPort.existsById(any())).thenReturn(false);
     Assertions.assertThatThrownBy(() -> userUseCase.update(user))
         .isInstanceOf(SystemErrorException.class)
-        .hasMessageContaining(ERR001.getFormattedMessage());
+        .hasMessageContaining(ERR001.getFormattedMessage(user.getId()));
   }
 
   @Test
@@ -83,7 +84,7 @@ class UserUseCaseTest {
     when(userRepositoryPort.findById(any())).thenReturn(Optional.empty());
     Assertions.assertThatThrownBy(() -> userUseCase.findById(ID))
         .isInstanceOf(SystemErrorException.class)
-        .hasMessageContaining(ERR001.getFormattedMessage());
+        .hasMessageContaining(ERR001.getFormattedMessage(ID));
   }
 
   @Test
@@ -98,7 +99,7 @@ class UserUseCaseTest {
     when(userRepositoryPort.existsById(any())).thenReturn(false);
     Assertions.assertThatThrownBy(() -> userUseCase.deleteById(ID))
         .isInstanceOf(SystemErrorException.class)
-        .hasMessageContaining(ERR001.getFormattedMessage());
+        .hasMessageContaining(ERR001.getFormattedMessage(ID));
   }
 
   @Test
@@ -124,7 +125,7 @@ class UserUseCaseTest {
     when(userRepositoryPort.findById(any())).thenReturn(Optional.empty());
     Assertions.assertThatThrownBy(() -> userUseCase.activate(ID))
         .isInstanceOf(SystemErrorException.class)
-        .hasMessageContaining(ERR001.getFormattedMessage());
+        .hasMessageContaining(ERR001.getFormattedMessage(ID));
   }
 
   @Test
@@ -156,7 +157,7 @@ class UserUseCaseTest {
     when(userRepositoryPort.findByUsername(any())).thenReturn(Optional.empty());
     Assertions.assertThatThrownBy(() -> userUseCase.findByUsername("username"))
         .isInstanceOf(SystemErrorException.class)
-        .hasMessageContaining(ERR001.getFormattedMessage());
+        .hasMessageContaining(ERR002.getFormattedMessage("username"));
   }
 
   private User createUser() {
