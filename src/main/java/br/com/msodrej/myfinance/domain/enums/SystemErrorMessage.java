@@ -13,6 +13,8 @@ public enum SystemErrorMessage {
   ERR003("ERR003", "Role with id %s not found"),
   ERR004("ERR004", "Financial with id %s not found"),
   ERR005("ERR005", "Transaction with id %s not found"),
+  ERR006("ERR006", "Unauthorized to modify financial control"),
+  ERR007("ERR007", "User not authenticated"),
   ;
 
   private final String code;

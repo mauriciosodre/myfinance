@@ -1,6 +1,5 @@
 package br.com.msodrej.myfinance.domain.model;
 
-import br.com.msodrej.myfinance.adapter.repository.entity.UserEntity;
 import br.com.msodrej.myfinance.domain.enums.TransactionType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,7 +24,7 @@ public class Transaction {
 
   private Financial financial;
 
-  private UserEntity user;
+  private User user;
 
   private TransactionDetails details;
 }
