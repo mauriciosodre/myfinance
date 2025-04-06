@@ -24,7 +24,7 @@ public class TransactionUseCase {
   public Transaction save(Transaction transaction) {
     var financial = financialUseCase.findById(transaction.getFinancial().getId());
 
-    validOwnerAndSharedWith(financial);
+    validateUserPermission(financial);
 
     return transactionRepository.save(transaction);
   }
@@ -40,7 +40,7 @@ public class TransactionUseCase {
 
   public Transaction update(Transaction transaction) {
     var financial = financialUseCase.findById(transaction.getFinancial().getId());
-    validOwnerAndSharedWith(financial);
+    validateUserPermission(financial);
 
     return transactionRepository.save(transaction);
   }
@@ -48,12 +48,12 @@ public class TransactionUseCase {
   public void deleteById(Long id) {
     var transaction = findById(id);
     var financial = transaction.getFinancial();
-    validOwnerAndSharedWith(financial);
+    validateUserPermission(financial);
 
     transactionRepository.deleteById(id);
   }
 
-  private void validOwnerAndSharedWith(Financial financial) {
+  private void validateUserPermission(Financial financial) {
     var currentUser = getCurrentUser();
 
     if (Objects.isNull(currentUser)) {
