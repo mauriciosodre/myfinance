@@ -1,9 +1,8 @@
 package br.com.msodrej.myfinance.domain.usecase;
 
 import static br.com.msodrej.myfinance.domain.enums.SystemErrorMessage.ERR005;
+import static br.com.msodrej.myfinance.domain.utils.SecurityUtils.getCurrentUser;
 
-import br.com.msodrej.myfinance.adapter.config.security.AuthenticationService;
-import br.com.msodrej.myfinance.adapter.config.security.UserPrincipal;
 import br.com.msodrej.myfinance.domain.enums.SystemErrorMessage;
 import br.com.msodrej.myfinance.domain.exceptions.SystemErrorException;
 import br.com.msodrej.myfinance.domain.model.Financial;
@@ -21,25 +20,12 @@ public class TransactionUseCase {
 
   private final TransactionRepositoryPort transactionRepository;
   private final FinancialUseCase financialUseCase;
-  private final AuthenticationService authenticationService;
 
   public Transaction save(Transaction transaction) {
     var financial = financialUseCase.findById(transaction.getFinancial().getId());
 
-    UserPrincipal currentUser = authenticationService.getAuthenticatedUser();
-    if (currentUser == null) {
-      throw new SystemErrorException("User not authenticated");
-    }
+    validOwnerAndSharedWith(financial);
 
-    boolean isOwner = financial.getOwner().getId().equals(currentUser.getUser().getId());
-    boolean isShared = financial.getSharedWith().stream()
-        .anyMatch(user -> user.getId().equals(currentUser.getUser().getId()));
-
-    if (!isOwner && !isShared) {
-      throw new SystemErrorException("Unauthorized to modify this financial control");
-    }
-
-    transaction.setUser(currentUser.getUser());
     return transactionRepository.save(transaction);
   }
 
@@ -68,7 +54,7 @@ public class TransactionUseCase {
   }
 
   private void validOwnerAndSharedWith(Financial financial) {
-    var currentUser = authenticationService.getAuthenticatedUser();
+    var currentUser = getCurrentUser();
 
     if (Objects.isNull(currentUser)) {
       throw new SystemErrorException(SystemErrorMessage.ERR007.getFormattedMessage());

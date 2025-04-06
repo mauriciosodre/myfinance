@@ -6,7 +6,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -23,14 +22,6 @@ public class AuthenticationService {
     var principal = (UserDetails) authentication.getPrincipal();
     var jwt = jwtService.generateToken(principal);
     return new AuthenticationResponseDTO(jwt);
-  }
-
-  public UserPrincipal getAuthenticatedUser() {
-    var authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal) {
-      return (UserPrincipal) authentication.getPrincipal();
-    }
-    return null;
   }
 
   public void updatePassword(String oldPassword, String newPassword) {

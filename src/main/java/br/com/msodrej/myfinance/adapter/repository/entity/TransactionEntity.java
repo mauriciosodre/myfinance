@@ -45,10 +45,6 @@ public class TransactionEntity {
   @JoinColumn(name = "transaction_id", nullable = false)
   private FinancialEntity financial;
 
-  @ManyToOne
-  @JoinColumn(name = "user_id", nullable = false)
-  private UserEntity user;
-
   @Embedded
   private TransactionDetailsEntity details;
 }
