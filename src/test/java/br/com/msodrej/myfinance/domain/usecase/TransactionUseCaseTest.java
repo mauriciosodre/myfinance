@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import br.com.msodrej.myfinance.adapter.config.security.AuthenticationService;
-import br.com.msodrej.myfinance.adapter.config.security.UserPrincipal;
 import br.com.msodrej.myfinance.domain.enums.SystemErrorMessage;
 import br.com.msodrej.myfinance.domain.exceptions.SystemErrorException;
 import br.com.msodrej.myfinance.domain.model.Financial;
@@ -40,8 +39,6 @@ class TransactionUseCaseTest {
     financial.setOwner(User.builder().id(UUID.randomUUID()).build());
     when(financialUseCase.findById(any())).thenReturn(financial);
 
-    when(authenticationService.getAuthenticatedUser()).thenReturn(new UserPrincipal(getUser()));
-
     var transaction = getNewTransaction();
 
     assertThrows(SystemErrorException.class, () -> transactionUseCase.save(transaction),
@@ -56,9 +53,6 @@ class TransactionUseCaseTest {
     financial.setOwner(User.builder().id(UUID.randomUUID()).build());
     when(financialUseCase.findById(any())).thenReturn(financial);
 
-    when(authenticationService.getAuthenticatedUser()).thenReturn(
-        new UserPrincipal(User.builder().build()));
-
     assertThrows(SystemErrorException.class, () -> transactionUseCase.update(transaction),
         SystemErrorMessage.ERR006.getFormattedMessage());
   }
@@ -69,9 +63,6 @@ class TransactionUseCaseTest {
     Financial financial = new Financial();
     financial.setOwner(User.builder().build());
     transaction.setFinancial(financial);
-
-    when(authenticationService.getAuthenticatedUser()).thenReturn(
-        new UserPrincipal(User.builder().build()));
 
     assertThrows(SystemErrorException.class, () -> transactionUseCase.deleteById(1L));
   }

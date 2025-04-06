@@ -10,6 +10,7 @@ import br.com.msodrej.myfinance.adapter.dto.auth.NewPasswordDTO;
 import br.com.msodrej.myfinance.adapter.dto.auth.SignInDTO;
 import br.com.msodrej.myfinance.adapter.dto.user.UserResponseDTO;
 import br.com.msodrej.myfinance.adapter.mapper.UserDTOMapper;
+import br.com.msodrej.myfinance.domain.utils.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -56,7 +57,7 @@ public class AuthController {
   @GetMapping
   @ResponseStatus(OK)
   public UserResponseDTO getAuthenticatedUser() {
-    var principal = authenticationService.getAuthenticatedUser();
+    var principal = SecurityUtils.getCurrentUser();
     return userDTOMapper.toDTO(principal.getUser());
   }
 

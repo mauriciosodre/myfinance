@@ -24,8 +24,6 @@ public class Transaction {
 
   private Financial financial;
 
-  private User user;
-
   private TransactionDetails details;
 }
 
