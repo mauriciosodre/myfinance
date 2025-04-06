@@ -10,3 +10,10 @@ spring:
     hibernate:
       ddl-auto: create
     show-sql: true
+
+integrations:
+  exchange-rates:
+    url: https://api.exchangeratesapi.io/v1/
+    api-key: ${EXCHANGE_RATES_API_KEY:your_api_key}
+    endpoints:
+      convert: /convert
