@@ -1,22 +1,29 @@
 package br.com.msodrej.myfinance.domain.usecase;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
+import static br.com.msodrej.myfinance.domain.enums.SystemErrorMessage.ERR006;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import br.com.msodrej.myfinance.adapter.config.security.AuthenticationService;
-import br.com.msodrej.myfinance.domain.enums.SystemErrorMessage;
+import br.com.msodrej.myfinance.adapter.config.security.UserPrincipal;
 import br.com.msodrej.myfinance.domain.exceptions.SystemErrorException;
 import br.com.msodrej.myfinance.domain.model.Financial;
 import br.com.msodrej.myfinance.domain.model.Transaction;
 import br.com.msodrej.myfinance.domain.model.User;
+import br.com.msodrej.myfinance.domain.utils.SecurityUtils;
 import br.com.msodrej.myfinance.port.repository.TransactionRepositoryPort;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
@@ -26,66 +33,139 @@ class TransactionUseCaseTest {
   private TransactionRepositoryPort transactionRepository;
   @Mock
   private FinancialUseCase financialUseCase;
-  @Mock
-  private AuthenticationService authenticationService;
   @InjectMocks
   private TransactionUseCase transactionUseCase;
 
-  private static final UUID USER_ID = UUID.randomUUID();
+  private User owner;
+  private User sharedUser;
+  private User unauthorizedUser;
+  private Financial financial;
 
-  @Test
-  void save_UnauthorizedUser_ThrowsError() {
-    var financial = getFinancial();
-    financial.setOwner(User.builder().id(UUID.randomUUID()).build());
-    when(financialUseCase.findById(any())).thenReturn(financial);
+  @BeforeEach
+  void setUp() {
+    owner = User.builder().id(UUID.randomUUID()).build();
+    sharedUser = User.builder().id(UUID.randomUUID()).build();
+    unauthorizedUser = User.builder().id(UUID.randomUUID()).build();
 
-    var transaction = getNewTransaction();
-
-    assertThrows(SystemErrorException.class, () -> transactionUseCase.save(transaction),
-        SystemErrorMessage.ERR006.getFormattedMessage());
-  }
-
-  @Test
-  void update_UnauthorizedUser_ThrowsError() {
-    var transaction = getNewTransaction();
-    transaction.setId(1L);
-    var financial = getFinancial();
-    financial.setOwner(User.builder().id(UUID.randomUUID()).build());
-    when(financialUseCase.findById(any())).thenReturn(financial);
-
-    assertThrows(SystemErrorException.class, () -> transactionUseCase.update(transaction),
-        SystemErrorMessage.ERR006.getFormattedMessage());
-  }
-
-  @Test
-  void deleteById_UnauthorizedUser_ThrowsError() {
-    Transaction transaction = new Transaction();
-    Financial financial = new Financial();
-    financial.setOwner(User.builder().build());
-    transaction.setFinancial(financial);
-
-    assertThrows(SystemErrorException.class, () -> transactionUseCase.deleteById(1L));
-  }
-
-  private Transaction getNewTransaction() {
-    return Transaction
-        .builder()
-        .financial(getFinancial())
-        .build();
-  }
-
-  private Financial getFinancial() {
-    return Financial
-        .builder()
-        .name("Financial Name")
+    financial = Financial.builder()
         .id(1L)
-        .owner(getUser())
+        .owner(owner)
         .sharedWith(new HashSet<>())
         .build();
+    financial.getSharedWith().add(sharedUser);
   }
 
-  private User getUser() {
-    return User.builder().id(USER_ID).build();
+  @Test
+  void save_ShouldThrowException_WhenUnauthorizedUserTries() {
+    var transaction = Transaction.builder().financial(financial).build();
+    var unauthorizedPrincipal = new UserPrincipal(unauthorizedUser);
+    try (MockedStatic<SecurityUtils> mockedSecurityUtils = Mockito.mockStatic(
+        SecurityUtils.class)) {
+      mockedSecurityUtils.when(SecurityUtils::getCurrentUser).thenReturn(unauthorizedPrincipal);
+
+      when(financialUseCase.findById(1L)).thenReturn(financial);
+
+      assertThatThrownBy(() -> transactionUseCase.save(transaction))
+          .isInstanceOf(SystemErrorException.class)
+          .hasMessage(ERR006.getFormattedMessage());
+    }
+  }
+
+
+  @Test
+  void save_ShouldSucceed_WhenOwnerCreatesTransaction() {
+    var transaction = Transaction.builder().financial(financial).build();
+    var ownerPrincipal = new UserPrincipal(owner);
+    try (MockedStatic<SecurityUtils> mockedSecurityUtils = Mockito.mockStatic(
+        SecurityUtils.class)) {
+      mockedSecurityUtils.when(SecurityUtils::getCurrentUser).thenReturn(ownerPrincipal);
+
+      when(financialUseCase.findById(1L)).thenReturn(financial);
+      when(transactionRepository.save(transaction)).thenReturn(transaction);
+
+      transactionUseCase.save(transaction);
+
+      verify(transactionRepository, times(1)).save(transaction);
+    }
+  }
+
+  @Test
+  void save_ShouldSucceed_WhenSharedUserCreatesTransaction() {
+    var transaction = Transaction.builder().financial(financial).build();
+    var sharedPrincipal = new UserPrincipal(sharedUser);
+    try (MockedStatic<SecurityUtils> mockedSecurityUtils = Mockito.mockStatic(
+        SecurityUtils.class)) {
+      mockedSecurityUtils.when(SecurityUtils::getCurrentUser).thenReturn(sharedPrincipal);
+
+      when(financialUseCase.findById(1L)).thenReturn(financial);
+      when(transactionRepository.save(transaction)).thenReturn(transaction);
+
+      transactionUseCase.save(transaction);
+
+      verify(transactionRepository, times(1)).save(transaction);
+    }
+  }
+
+  @Test
+  void update_ShouldSucceed_WhenOwnerUpdatesTransaction() {
+    var transaction = Transaction.builder().id(1L).financial(financial).build();
+    var ownerPrincipal = new UserPrincipal(owner);
+    try (MockedStatic<SecurityUtils> mockedSecurityUtils = Mockito.mockStatic(SecurityUtils.class)) {
+      mockedSecurityUtils.when(SecurityUtils::getCurrentUser).thenReturn(ownerPrincipal);
+
+      when(financialUseCase.findById(1L)).thenReturn(financial);
+      when(transactionRepository.save(transaction)).thenReturn(transaction);
+
+      Transaction result = transactionUseCase.update(transaction);
+
+      verify(transactionRepository, times(1)).save(transaction);
+      assertThat(result).isEqualTo(transaction);
+    }
+  }
+
+  @Test
+  void update_ShouldThrowException_WhenUnauthorizedUserTries() {
+    var transaction = Transaction.builder().id(1L).financial(financial).build();
+    var unauthorizedPrincipal = new UserPrincipal(unauthorizedUser);
+    try (MockedStatic<SecurityUtils> mockedSecurityUtils = Mockito.mockStatic(SecurityUtils.class)) {
+      mockedSecurityUtils.when(SecurityUtils::getCurrentUser).thenReturn(unauthorizedPrincipal);
+
+      when(financialUseCase.findById(1L)).thenReturn(financial);
+
+      assertThatThrownBy(() -> transactionUseCase.update(transaction))
+          .isInstanceOf(SystemErrorException.class)
+          .hasMessage(ERR006.getFormattedMessage());
+    }
+  }
+
+  @Test
+  void deleteById_ShouldSucceed_WhenSharedUserDeletesTransaction() {
+    var transaction = Transaction.builder().id(1L).financial(financial).build();
+    var sharedPrincipal = new UserPrincipal(sharedUser);
+    try (MockedStatic<SecurityUtils> mockedSecurityUtils = Mockito.mockStatic(SecurityUtils.class)) {
+      mockedSecurityUtils.when(SecurityUtils::getCurrentUser).thenReturn(sharedPrincipal);
+
+      when(transactionRepository.findById(1L)).thenReturn(Optional.of(transaction));
+
+      transactionUseCase.deleteById(1L);
+
+      verify(transactionRepository, times(1)).deleteById(1L);
+    }
+  }
+
+  @Test
+  void deleteById_ShouldThrowException_WhenUnauthorizedUserTries() {
+    var transaction = Transaction.builder().id(1L).financial(financial).build();
+    var unauthorizedPrincipal = new UserPrincipal(unauthorizedUser);
+    try (MockedStatic<SecurityUtils> mockedSecurityUtils = Mockito.mockStatic(SecurityUtils.class)) {
+      mockedSecurityUtils.when(SecurityUtils::getCurrentUser).thenReturn(unauthorizedPrincipal);
+
+      when(transactionRepository.findById(1L)).thenReturn(Optional.of(transaction));
+
+      assertThatThrownBy(() -> transactionUseCase.deleteById(1L))
+          .isInstanceOf(SystemErrorException.class)
+          .hasMessage(ERR006.getFormattedMessage());
+    }
   }
 
 }
