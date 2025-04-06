@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,18 +35,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/financials")
+@Tag(name = "Financial Controls", description = "Endpoints para gerenciamento de controles financeiros")
 public class FinancialController {
 
   private final FinancialUseCase useCase;
   private final FinancialDTOMapper mapper;
 
-  @Operation(summary = "Cria uma nova financial")
+  @Operation(summary = "Cria um novo controle financeiro")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "201", description = "Financial criada com sucesso",
-          content = {@Content(mediaType = "application/json",
-              schema = @Schema(implementation = FinancialResponseDTO.class))}),
-      @ApiResponse(responseCode = "400", description = "Erro ao criar financial",
-          content = @Content)})
+      @ApiResponse(responseCode = "201", description = "Controle financeiro criado com sucesso"),
+      @ApiResponse(responseCode = "400", description = "Erro na requisição")
+  })
   @PostMapping
   @ResponseStatus(CREATED)
   public FinancialResponseDTO save(@RequestBody NewFinancialDTO financial) {
@@ -104,10 +104,10 @@ public class FinancialController {
     return useCase.findAll(null, pageable).map(mapper::toDTO);
   }
 
-  @Operation(summary = "Adiciona um usuário ao compartilhamento de um controle financeiro")
+  @Operation(summary = "Compartilha um controle financeiro com um usuário")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "204", description = "Usuário adicionado ao compartilhamento com sucesso"),
-      @ApiResponse(responseCode = "400", description = "Erro ao remover usuário do compartilhamento"),
+      @ApiResponse(responseCode = "400", description = "Erro ao adicionar usuário do compartilhamento"),
       @ApiResponse(responseCode = "403", description = "Acesso negado")
   })
   @PatchMapping("/{id}/share/{userId}")
