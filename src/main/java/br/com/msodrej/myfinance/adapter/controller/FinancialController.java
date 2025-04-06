@@ -15,11 +15,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -99,6 +102,30 @@ public class FinancialController {
   @ResponseStatus(OK)
   public Page<FinancialResponseDTO> findAll(Pageable pageable) {
     return useCase.findAll(null, pageable).map(mapper::toDTO);
+  }
+
+  @Operation(summary = "Adiciona um usuário ao compartilhamento de um controle financeiro")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Usuário adicionado ao compartilhamento com sucesso"),
+      @ApiResponse(responseCode = "400", description = "Erro ao remover usuário do compartilhamento"),
+      @ApiResponse(responseCode = "403", description = "Acesso negado")
+  })
+  @PatchMapping("/{id}/share/{userId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void addUserToSharing(@PathVariable Long id, @PathVariable UUID userId) {
+    useCase.addUserToSharing(id, userId);
+  }
+
+  @Operation(summary = "Remove um usuário do compartilhamento de um controle financeiro")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Usuário removido do compartilhamento com sucesso"),
+      @ApiResponse(responseCode = "400", description = "Erro ao remover usuário do compartilhamento"),
+      @ApiResponse(responseCode = "403", description = "Acesso negado")
+  })
+  @DeleteMapping("/{id}/share/{userId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void removeUserFromSharing(@PathVariable Long id, @PathVariable UUID userId) {
+    useCase.removeUserFromSharing(id, userId);
   }
 
 }

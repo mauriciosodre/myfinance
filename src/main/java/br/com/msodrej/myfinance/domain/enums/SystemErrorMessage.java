@@ -15,6 +15,8 @@ public enum SystemErrorMessage {
   ERR005("ERR005", "Transaction with id %s not found"),
   ERR006("ERR006", "Unauthorized to modify financial control"),
   ERR007("ERR007", "User not authenticated"),
+  ERR008("ERR008", "Only the owner can modify this financial control"),
+  ERR009("ERR009", "User is already shared with this financial control"),
   ;
 
   private final String code;
