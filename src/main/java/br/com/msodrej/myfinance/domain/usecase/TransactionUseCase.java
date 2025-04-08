@@ -4,6 +4,7 @@ import static br.com.msodrej.myfinance.domain.enums.SystemErrorMessage.ERR005;
 import static br.com.msodrej.myfinance.domain.utils.SecurityUtils.getCurrentUser;
 
 import br.com.msodrej.myfinance.domain.enums.SystemErrorMessage;
+import br.com.msodrej.myfinance.domain.enums.TransactionType;
 import br.com.msodrej.myfinance.domain.exceptions.SystemErrorException;
 import br.com.msodrej.myfinance.domain.model.Financial;
 import br.com.msodrej.myfinance.domain.model.Transaction;
@@ -25,6 +26,8 @@ public class TransactionUseCase {
     var financial = financialUseCase.findById(transaction.getFinancial().getId());
 
     validateUserPermission(financial);
+
+    validateTransactionDetails(transaction);
 
     return transactionRepository.save(transaction);
   }
@@ -66,6 +69,18 @@ public class TransactionUseCase {
 
     if (!isOwner && !isShared) {
       throw new SystemErrorException(SystemErrorMessage.ERR006.getFormattedMessage());
+    }
+  }
+
+  private void validateTransactionDetails(Transaction transaction) {
+    var details = transaction.getDetails();
+    if (transaction.getType() == TransactionType.INCOME &&
+        (Objects.isNull(details) || Objects.isNull(
+            details.getIncomeSource()) || details.getIncomeSource().isBlank())) {
+      throw new SystemErrorException(SystemErrorMessage.ERR010.getFormattedMessage());
+    } else if (transaction.getType() == TransactionType.EXPENSE &&
+               (Objects.isNull(details) || Objects.isNull(details.getPaymentMethod()))) {
+      throw new SystemErrorException(SystemErrorMessage.ERR011.getFormattedMessage());
     }
   }
 

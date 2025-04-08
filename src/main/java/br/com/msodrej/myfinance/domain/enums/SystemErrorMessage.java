@@ -17,6 +17,8 @@ public enum SystemErrorMessage {
   ERR007("ERR007", "User not authenticated"),
   ERR008("ERR008", "Only the owner can modify this financial control"),
   ERR009("ERR009", "User is already shared with this financial control"),
+  ERR010("ERR010", "Income source is required for income transactions"),
+  ERR011("ERR011", "Payment method is required for expense transactions"),
   ;
 
   private final String code;
