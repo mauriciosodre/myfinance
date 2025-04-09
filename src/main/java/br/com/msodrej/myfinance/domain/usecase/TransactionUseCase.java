@@ -7,8 +7,11 @@ import br.com.msodrej.myfinance.domain.enums.SystemErrorMessage;
 import br.com.msodrej.myfinance.domain.enums.TransactionType;
 import br.com.msodrej.myfinance.domain.exceptions.SystemErrorException;
 import br.com.msodrej.myfinance.domain.model.Financial;
+import br.com.msodrej.myfinance.domain.model.PeriodSummary;
 import br.com.msodrej.myfinance.domain.model.Transaction;
 import br.com.msodrej.myfinance.port.repository.TransactionRepositoryPort;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -54,6 +57,36 @@ public class TransactionUseCase {
     validateUserPermission(financial);
 
     transactionRepository.deleteById(id);
+  }
+
+  public Page<Transaction> findByPeriodPaged(Long financialId, LocalDate startDate,
+      LocalDate endDate, Pageable pageable) {
+    var financial = financialUseCase.findById(financialId);
+    validateUserPermission(financial);
+    return transactionRepository.findByFinancialAndDateBetween(financialId, startDate, endDate,
+        pageable);
+  }
+
+  public BigDecimal calculateBalance(Long financialId) {
+    var financial = financialUseCase.findById(financialId);
+    validateUserPermission(financial);
+    return transactionRepository.calculateBalanceByFinancialId(financial.getId());
+  }
+
+  public BigDecimal calculateBalanceByPeriod(Long financialId, LocalDate startDate,
+      LocalDate endDate) {
+    var financial = financialUseCase.findById(financialId);
+    validateUserPermission(financial);
+    return transactionRepository.calculateBalanceByFinancialIdAndPeriod(financial.getId(),
+        startDate, endDate);
+  }
+
+  public PeriodSummary calculatePeriodSummary(Long financialId, LocalDate startDate,
+      LocalDate endDate) {
+    var financial = financialUseCase.findById(financialId);
+    validateUserPermission(financial);
+    return transactionRepository.calculatePeriodSummaryByFinancialId(financial.getId(), startDate,
+        endDate);
   }
 
   private void validateUserPermission(Financial financial) {
