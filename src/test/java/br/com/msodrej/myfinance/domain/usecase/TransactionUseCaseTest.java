@@ -3,6 +3,8 @@ package br.com.msodrej.myfinance.domain.usecase;
 import static br.com.msodrej.myfinance.domain.enums.SystemErrorMessage.ERR005;
 import static br.com.msodrej.myfinance.domain.enums.SystemErrorMessage.ERR006;
 import static br.com.msodrej.myfinance.domain.enums.SystemErrorMessage.ERR007;
+import static br.com.msodrej.myfinance.domain.enums.SystemErrorMessage.ERR010;
+import static br.com.msodrej.myfinance.domain.enums.SystemErrorMessage.ERR011;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -13,9 +15,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import br.com.msodrej.myfinance.adapter.config.security.UserPrincipal;
+import br.com.msodrej.myfinance.domain.enums.TransactionType;
 import br.com.msodrej.myfinance.domain.exceptions.SystemErrorException;
 import br.com.msodrej.myfinance.domain.model.Financial;
 import br.com.msodrej.myfinance.domain.model.Transaction;
+import br.com.msodrej.myfinance.domain.model.TransactionDetails;
 import br.com.msodrej.myfinance.domain.model.User;
 import br.com.msodrej.myfinance.domain.utils.SecurityUtils;
 import br.com.msodrej.myfinance.port.repository.TransactionRepositoryPort;
@@ -119,6 +123,38 @@ class TransactionUseCaseTest {
       transactionUseCase.save(transaction);
 
       verify(transactionRepository, times(1)).save(transaction);
+    }
+  }
+
+  @Test
+  void save_ShouldThrowException_WhenIncomeWithoutSource() {
+    transaction.setType(TransactionType.INCOME);
+    transaction.setDetails(new TransactionDetails(null, null, false, null));
+
+    var sharedPrincipal = new UserPrincipal(sharedUser);
+    try (MockedStatic<SecurityUtils> mockedSecurityUtils = mockStatic(
+        SecurityUtils.class)) {
+      mockedSecurityUtils.when(SecurityUtils::getCurrentUser).thenReturn(sharedPrincipal);
+      when(financialUseCase.findById(1L)).thenReturn(financial);
+      assertThatThrownBy(() -> transactionUseCase.save(transaction))
+          .isInstanceOf(SystemErrorException.class)
+          .hasMessage(ERR010.getFormattedMessage());
+    }
+  }
+
+  @Test
+  void save_ShouldThrowException_WhenExpenseWithoutPaymentMethod() {
+    transaction.setType(TransactionType.EXPENSE);
+    transaction.setDetails(new TransactionDetails(null, null, false, null));
+
+    var sharedPrincipal = new UserPrincipal(sharedUser);
+    try (MockedStatic<SecurityUtils> mockedSecurityUtils = mockStatic(
+        SecurityUtils.class)) {
+      mockedSecurityUtils.when(SecurityUtils::getCurrentUser).thenReturn(sharedPrincipal);
+      when(financialUseCase.findById(1L)).thenReturn(financial);
+      assertThatThrownBy(() -> transactionUseCase.save(transaction))
+          .isInstanceOf(SystemErrorException.class)
+          .hasMessage(ERR011.getFormattedMessage());
     }
   }
 

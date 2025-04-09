@@ -45,6 +45,10 @@ public class TransactionEntity {
   @JoinColumn(name = "transaction_id", nullable = false)
   private FinancialEntity financial;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "category_id")
+  private CategoryEntity category;
+
   @Embedded
   private TransactionDetailsEntity details;
 }
