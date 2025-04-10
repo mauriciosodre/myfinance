@@ -68,7 +68,7 @@ public class AuthController {
               schema = @Schema(implementation = UserResponseDTO.class))}),
       @ApiResponse(responseCode = "400", description = "Erro ao atualizar senha",
           content = @Content)})
-  @PutMapping("/new-password")
+  @PutMapping("/update-password")
   @ResponseStatus(ACCEPTED)
   public void updatePassword(@Valid @RequestBody NewPasswordDTO data) {
     authenticationService.updatePassword(data.oldPassword(), data.newPassword());

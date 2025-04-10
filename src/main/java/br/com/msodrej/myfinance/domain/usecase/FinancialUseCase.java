@@ -48,6 +48,10 @@ public class FinancialUseCase {
 
     var userToAdd = userUseCase.findById(userId);
 
+    if (financial.getOwner().getId().equals(userToAdd.getId())) {
+      throw new SystemErrorException("Owner cannot be added to shared users");
+    }
+
     if (financial.getSharedWith().contains(userToAdd)) {
       throw new SystemErrorException(ERR009.getFormattedMessage());
     }

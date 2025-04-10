@@ -19,6 +19,7 @@ public enum SystemErrorMessage {
   ERR009("ERR009", "User is already shared with this financial control"),
   ERR010("ERR010", "Income source is required for income transactions"),
   ERR011("ERR011", "Payment method is required for expense transactions"),
+  ERR012("ERR012", "Senha atual inválida"),
   ;
 
   private final String code;
