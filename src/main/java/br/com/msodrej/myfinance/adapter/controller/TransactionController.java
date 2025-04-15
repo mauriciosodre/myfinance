@@ -12,6 +12,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.websocket.server.PathParam;
+import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -83,6 +86,35 @@ public class TransactionController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteById(@PathVariable Long id) {
     transactionUseCase.deleteById(id);
+  }
+
+  @Operation(summary = "Busca as transações de um financeiro em um período")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Resumo calculado com sucesso",
+          content = {@Content(mediaType = "application/json")}),
+      @ApiResponse(responseCode = "400", description = "Erro ao calcular resumo",
+          content = @Content(schema = @Schema(implementation = ErrorDetails.class)))})
+  @GetMapping("/financial/{financialId}/period")
+  @ResponseStatus(HttpStatus.OK)
+  public List<TransactionResponseDTO> findByPeriod(@PathVariable Long financialId,
+      @PathParam(value = "startDate") LocalDate startDate,
+      @PathParam(value = "endDate") LocalDate endDate) {
+    return transactionUseCase.findByPeriod(financialId, startDate, endDate).stream().map(
+        mapper::toDTO).toList();
+  }
+
+  @Operation(summary = "Calcula o resumo das transações de um financeiro em um período")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Resumo calculado com sucesso",
+          content = {@Content(mediaType = "application/json")}),
+      @ApiResponse(responseCode = "400", description = "Erro ao calcular resumo",
+          content = @Content(schema = @Schema(implementation = ErrorDetails.class)))})
+  @GetMapping("summary/financial/{financialId}/period")
+  @ResponseStatus(HttpStatus.OK)
+  public Object calculateFinancialPeriodSummary(@PathVariable Long financialId,
+      @PathParam(value = "startDate") LocalDate startDate,
+      @PathParam(value = "endDate") LocalDate endDate) {
+    return transactionUseCase.calculateFinancialPeriodSummary(financialId, startDate, endDate);
   }
 
 }

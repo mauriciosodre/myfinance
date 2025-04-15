@@ -3,6 +3,7 @@ package br.com.msodrej.myfinance.adapter.repository.entity;
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
 import br.com.msodrej.myfinance.domain.enums.TransactionType;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -45,7 +46,7 @@ public class TransactionEntity {
   @JoinColumn(name = "transaction_id", nullable = false)
   private FinancialEntity financial;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
   @JoinColumn(name = "category_id")
   private CategoryEntity category;
 

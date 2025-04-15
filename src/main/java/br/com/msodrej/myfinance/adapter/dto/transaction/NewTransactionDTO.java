@@ -10,5 +10,8 @@ public record NewTransactionDTO(
     LocalDate date,
     TransactionType type,
     Long financialId,
-    TransactionDetailsDTO details
-) {}
+    TransactionDetailsDTO details,
+    Long categoryId
+) {
+
+}

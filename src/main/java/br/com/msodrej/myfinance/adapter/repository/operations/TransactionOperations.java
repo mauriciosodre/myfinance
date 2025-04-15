@@ -57,8 +57,16 @@ public class TransactionOperations implements TransactionRepositoryPort {
   @Override
   public Page<Transaction> findByFinancialAndDateBetween(Long financialId, LocalDate startDate,
       LocalDate endDate, Pageable pageable) {
-    return transactionRepository.findByFinancialIdAndDateBetween(financialId, startDate, endDate,
+    return transactionRepository.findByFinancialIdAndDateBetweenOrderByDateDesc(financialId, startDate, endDate,
         pageable).map(mapper::toModel);
+  }
+
+  @Override
+  public List<Transaction> findByFinancialAndDateBetween(Long financialId, LocalDate startDate,
+      LocalDate endDate) {
+    return transactionRepository.findByFinancialIdAndDateBetweenOrderByDateDesc(financialId, startDate, endDate)
+        .stream()
+        .map(mapper::toModel).toList();
   }
 
   @Override
@@ -70,8 +78,6 @@ public class TransactionOperations implements TransactionRepositoryPort {
           "Error deleting transaction by Id, cause: " + e.getMessage());
     }
   }
-
-  //TODO colocar queries no JPA Repository
 
   @Override
   public BigDecimal calculateBalanceByFinancialId(Long financialId) {
@@ -121,10 +127,10 @@ public class TransactionOperations implements TransactionRepositoryPort {
 
     Object[] results = (Object[]) query.getSingleResult();
 
-    return new PeriodSummary(
-        (BigDecimal) results[0],
-        (BigDecimal) results[1]
-    );
+    return PeriodSummary.builder()
+        .totalIncome((BigDecimal) results[0])
+        .totalExpense((BigDecimal) results[1])
+        .build();
   }
 
   @Override

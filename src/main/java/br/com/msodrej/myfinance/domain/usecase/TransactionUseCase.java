@@ -12,6 +12,7 @@ import br.com.msodrej.myfinance.domain.model.Transaction;
 import br.com.msodrej.myfinance.port.repository.TransactionRepositoryPort;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,6 +32,10 @@ public class TransactionUseCase {
     validateUserPermission(financial);
 
     validateTransactionDetails(transaction);
+
+    if (Objects.isNull(transaction.getCategory().getId())) {
+      transaction.setCategory(null);
+    }
 
     return transactionRepository.save(transaction);
   }
@@ -59,6 +64,13 @@ public class TransactionUseCase {
     transactionRepository.deleteById(id);
   }
 
+  public List<Transaction> findByPeriod(Long financialId, LocalDate startDate,
+      LocalDate endDate) {
+    var financial = financialUseCase.findById(financialId);
+    validateUserPermission(financial);
+    return transactionRepository.findByFinancialAndDateBetween(financialId, startDate, endDate);
+  }
+
   public Page<Transaction> findByPeriodPaged(Long financialId, LocalDate startDate,
       LocalDate endDate, Pageable pageable) {
     var financial = financialUseCase.findById(financialId);
@@ -73,20 +85,16 @@ public class TransactionUseCase {
     return transactionRepository.calculateBalanceByFinancialId(financial.getId());
   }
 
-  public BigDecimal calculateBalanceByPeriod(Long financialId, LocalDate startDate,
+  public PeriodSummary calculateFinancialPeriodSummary(Long financialId, LocalDate startDate,
       LocalDate endDate) {
     var financial = financialUseCase.findById(financialId);
     validateUserPermission(financial);
-    return transactionRepository.calculateBalanceByFinancialIdAndPeriod(financial.getId(),
-        startDate, endDate);
-  }
-
-  public PeriodSummary calculatePeriodSummary(Long financialId, LocalDate startDate,
-      LocalDate endDate) {
-    var financial = financialUseCase.findById(financialId);
-    validateUserPermission(financial);
-    return transactionRepository.calculatePeriodSummaryByFinancialId(financial.getId(), startDate,
+    var periodSummary = transactionRepository.calculatePeriodSummaryByFinancialId(financial.getId(),
+        startDate,
         endDate);
+
+    periodSummary.setTotalBalance(calculateBalance(financialId));
+    return periodSummary;
   }
 
   private void validateUserPermission(Financial financial) {

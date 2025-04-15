@@ -20,6 +20,9 @@ public interface TransactionRepositoryPort {
   Page<Transaction> findByFinancialAndDateBetween(Long financialId, LocalDate startDate,
       LocalDate endDate, Pageable pageable);
 
+  List<Transaction> findByFinancialAndDateBetween(Long financialId, LocalDate startDate,
+      LocalDate endDate);
+
   void deleteById(Long id);
 
   BigDecimal calculateBalanceByFinancialId(Long financialId);

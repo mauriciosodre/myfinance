@@ -1,14 +1,22 @@
 package br.com.msodrej.myfinance.adapter.repository.operations;
 
+import static br.com.msodrej.myfinance.adapter.repository.specifications.FinancialSpecification.hasName;
+import static br.com.msodrej.myfinance.adapter.repository.specifications.FinancialSpecification.hasOwnerId;
+import static br.com.msodrej.myfinance.adapter.repository.specifications.FinancialSpecification.isSharedWith;
+
 import br.com.msodrej.myfinance.adapter.repository.mapper.FinancialEntityMapper;
 import br.com.msodrej.myfinance.adapter.repository.repositories.FinancialRepository;
 import br.com.msodrej.myfinance.domain.exceptions.DatabaseErrorException;
 import br.com.msodrej.myfinance.domain.model.Financial;
+import br.com.msodrej.myfinance.domain.model.User;
 import br.com.msodrej.myfinance.port.repository.FinancialRepositoryPort;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
@@ -38,11 +46,18 @@ public class FinancialOperations implements FinancialRepositoryPort {
 
   @Override
   public Page<Financial> findAll(Financial financial, Pageable pageable) {
-    try {
-      return financialRepository.findAll(pageable).map(mapper::toModel);
-    } catch (Exception e) {
-      throw new DatabaseErrorException("Error finding financials, cause: " + e.getMessage());
+    UUID sharedWithId = null;
+    if (Objects.nonNull(financial.getSharedWith())) {
+      sharedWithId = financial.getSharedWith()
+          .stream()
+          .map(User::getId)
+          .findFirst().orElse(null);
     }
+
+    var spec = Specification.where(hasName(financial.getName()))
+        .and((hasOwnerId(financial.getOwner().getId())).or(isSharedWith(sharedWithId)));
+
+    return financialRepository.findAll(spec, pageable).map(mapper::toModel);
   }
 
   @Override

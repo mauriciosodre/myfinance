@@ -14,8 +14,9 @@ public class PeriodSummary {
 
   private BigDecimal totalIncome;
   private BigDecimal totalExpense;
+  private BigDecimal totalBalance;
 
-  public BigDecimal getBalance() {
+  public BigDecimal getPeriodBalance() {
     return totalIncome.subtract(totalExpense);
   }
 }

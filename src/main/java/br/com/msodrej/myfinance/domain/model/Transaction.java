@@ -25,5 +25,7 @@ public class Transaction {
   private Financial financial;
 
   private TransactionDetails details;
+
+  private Category category;
 }
 

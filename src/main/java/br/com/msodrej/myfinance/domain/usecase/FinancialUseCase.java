@@ -23,6 +23,8 @@ public class FinancialUseCase {
   private final UserUseCase userUseCase;
 
   public Financial save(Financial financial) {
+    var user = SecurityUtils.getCurrentUser().getUser();
+    financial.setOwner(user);
     return financialRepository.save(financial);
   }
 

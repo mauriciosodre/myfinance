@@ -15,7 +15,8 @@ public record TransactionPayloadDTO(
     @NotNull LocalDate date,
     @NotNull TransactionType type,
     @NotNull Long financialId,
-    @Valid TransactionDetailsDTO details
+    @Valid TransactionDetailsDTO details,
+    Long categoryId
 ) {
 
 }

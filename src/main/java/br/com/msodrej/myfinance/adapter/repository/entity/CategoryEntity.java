@@ -5,12 +5,9 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,9 +30,18 @@ public class CategoryEntity {
   private String description;
   private String color;
 
-  @ManyToOne
-  private CategoryEntity parent;
+  private Boolean enabled;
 
-  @OneToMany(mappedBy = "category")
-  private List<TransactionEntity> transactions = new ArrayList<>();
+  private Boolean deleted;
+
+  @PrePersist
+  public void prePersist() {
+    if (enabled == null) {
+      enabled = true;
+    }
+    if (deleted == null) {
+      deleted = false;
+    }
+  }
+
 }
