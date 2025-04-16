@@ -6,6 +6,7 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 
 import br.com.msodrej.myfinance.adapter.dto.user.NewUserDTO;
+import br.com.msodrej.myfinance.adapter.dto.user.UserFilterDTO;
 import br.com.msodrej.myfinance.adapter.dto.user.UserPayloadDTO;
 import br.com.msodrej.myfinance.adapter.dto.user.UserResponseDTO;
 import br.com.msodrej.myfinance.adapter.mapper.UserDTOMapper;
@@ -77,7 +78,7 @@ public class UserController {
     useCase.deleteById(id);
   }
 
-  @Operation(summary = "Cria um novo usuário")
+  @Operation(summary = "Ativa um usuário")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "204", description = "Usuário ativado/desativado com sucesso",
           content = {@Content(mediaType = "application/json",
@@ -112,8 +113,9 @@ public class UserController {
           content = @Content)})
   @GetMapping
   @ResponseStatus(OK)
-  public Page<UserResponseDTO> findAll(Pageable pageable) {
-    return useCase.findAll(pageable).map(mapper::toDTO);
+  public Page<UserResponseDTO> findAll(UserFilterDTO filters, Pageable pageable) {
+    var filtersMap = mapper.toModel(filters);
+    return useCase.findAll(filtersMap, pageable).map(mapper::toDTO);
   }
 
 }

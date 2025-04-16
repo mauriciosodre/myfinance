@@ -16,6 +16,7 @@ public interface FinancialDTOMapper {
   Financial toModel(FinancialPayloadDTO dto);
 
   @Mapping(target = "owner.id", source = "ownerId")
+  @Mapping(target = "sharedWith", expression = "java(dto.sharedWithId() != null ? dto.sharedWithId().stream().map(id -> User.builder().id(id).build()).collect(java.util.stream.Collectors.toSet()) : null)")
   Financial toModel(FinancialFilterDTO dto);
 
 

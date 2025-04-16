@@ -57,8 +57,7 @@ class UserUseCaseTest {
     when(userRepositoryPort.save(any())).thenReturn(user);
     when(userRepositoryPort.existsById(any())).thenReturn(true);
     var result = userUseCase.update(user);
-    assertThat(result).isNotNull();
-    assertThat(result).isEqualTo(user);
+    assertThat(result).isNotNull().isEqualTo(user);
   }
 
   @Test
@@ -75,8 +74,7 @@ class UserUseCaseTest {
     var user = createUser();
     when(userRepositoryPort.findById(any())).thenReturn(Optional.of(user));
     var result = userUseCase.findById(user.getId());
-    assertThat(result).isNotNull();
-    assertThat(result).isEqualTo(user);
+    assertThat(result).isNotNull().isEqualTo(user);
   }
 
   @Test
@@ -137,9 +135,9 @@ class UserUseCaseTest {
 
   @Test
   void findAll() {
-    var UsersPage = new PageImpl<>(List.of(createUser()));
-    when(userRepositoryPort.findAll(any(Pageable.class))).thenReturn(UsersPage);
-    var result = userUseCase.findAll(Pageable.unpaged());
+    var userspage = new PageImpl<>(List.of(createUser()));
+    when(userRepositoryPort.findAll(any(User.class), any(Pageable.class))).thenReturn(userspage);
+    var result = userUseCase.findAll(User.builder().build(), Pageable.unpaged());
     assertThat(result).isNotNull().isNotEmpty().size().isEqualTo(1);
   }
 
@@ -148,8 +146,7 @@ class UserUseCaseTest {
     var user = createUser();
     when(userRepositoryPort.findByUsername(any())).thenReturn(Optional.of(user));
     var result = userUseCase.findByUsername("username");
-    assertThat(result).isNotNull();
-    assertThat(result).isEqualTo(user);
+    assertThat(result).isNotNull().isEqualTo(user);
   }
 
   @Test

@@ -14,7 +14,7 @@ public interface UserRepositoryPort {
 
   Optional<User> findByUsername(String username);
 
-  Page<User> findAll(Pageable pageable);
+  Page<User> findAll(User user, Pageable pageable);
 
   void deleteById(UUID id);
 
