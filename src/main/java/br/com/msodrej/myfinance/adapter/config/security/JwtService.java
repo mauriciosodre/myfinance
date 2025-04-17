@@ -7,6 +7,8 @@ import static io.jsonwebtoken.io.Decoders.BASE64;
 
 import br.com.msodrej.myfinance.domain.utils.ClockUtils;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.HashMap;
@@ -32,6 +34,15 @@ public class JwtService {
 
   public String generateToken(UserDetails userDetails) {
     return generateToken(new HashMap<>(), userDetails);
+  }
+
+  public String generateTemporaryToken(UserDetails userDetails, long expirationInMillis) {
+    return Jwts.builder()
+        .setSubject(userDetails.getUsername())
+        .setIssuedAt(clockUtils.newDate(System.currentTimeMillis()))
+        .setExpiration(clockUtils.newDate(System.currentTimeMillis() + expirationInMillis))
+        .signWith(getSigningKey(), SignatureAlgorithm.HS512)
+        .compact();
   }
 
   public boolean isTokenValid(String token, UserDetails userDetails) {

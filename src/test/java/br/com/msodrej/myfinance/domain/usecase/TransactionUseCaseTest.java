@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 import br.com.msodrej.myfinance.adapter.config.security.UserPrincipal;
 import br.com.msodrej.myfinance.domain.enums.TransactionType;
 import br.com.msodrej.myfinance.domain.exceptions.SystemErrorException;
+import br.com.msodrej.myfinance.domain.model.Category;
 import br.com.msodrej.myfinance.domain.model.Financial;
 import br.com.msodrej.myfinance.domain.model.Transaction;
 import br.com.msodrej.myfinance.domain.model.TransactionDetails;
@@ -75,6 +76,7 @@ class TransactionUseCaseTest {
         .id(1L)
         .financial(financial)
         .amount(new BigDecimal("100.00"))
+        .category(Category.builder().id(1L).build())
         .build();
   }
 

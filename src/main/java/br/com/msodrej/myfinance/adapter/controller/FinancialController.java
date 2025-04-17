@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 
+import br.com.msodrej.myfinance.adapter.dto.financial.FinancialFilterDTO;
 import br.com.msodrej.myfinance.adapter.dto.financial.FinancialPayloadDTO;
 import br.com.msodrej.myfinance.adapter.dto.financial.FinancialResponseDTO;
 import br.com.msodrej.myfinance.adapter.dto.financial.NewFinancialDTO;
@@ -100,8 +101,9 @@ public class FinancialController {
           content = @Content)})
   @GetMapping
   @ResponseStatus(OK)
-  public Page<FinancialResponseDTO> findAll(Pageable pageable) {
-    return useCase.findAll(null, pageable).map(mapper::toDTO);
+  public Page<FinancialResponseDTO> findAll(FinancialFilterDTO filter, Pageable pageable) {
+    var financial = mapper.toModel(filter);
+    return useCase.findAll(financial, pageable).map(mapper::toDTO);
   }
 
   @Operation(summary = "Compartilha um controle financeiro com um usuário")

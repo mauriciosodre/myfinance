@@ -1,6 +1,5 @@
 package br.com.msodrej.myfinance.adapter.repository.entity;
 
-import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
 import jakarta.persistence.Entity;
@@ -11,14 +10,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -53,9 +49,6 @@ public class FinancialEntity {
       inverseJoinColumns = @JoinColumn(name = "user_id")
   )
   private Set<UserEntity> sharedWith = new HashSet<>();
-
-  @OneToMany(mappedBy = "financial", cascade = ALL, orphanRemoval = true)
-  private List<TransactionEntity> transactions = new ArrayList<>();
 
   @PrePersist
   protected void onCreate() {

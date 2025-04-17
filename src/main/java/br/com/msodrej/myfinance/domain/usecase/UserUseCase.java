@@ -53,8 +53,8 @@ public class UserUseCase {
     return repositoryPort.existsById(id);
   }
 
-  public Page<User> findAll(Pageable pageable) {
-    return repositoryPort.findAll(pageable);
+  public Page<User> findAll(User user, Pageable pageable) {
+    return repositoryPort.findAll(user, pageable);
   }
 
   private void checkIfUserExists(UUID id) {

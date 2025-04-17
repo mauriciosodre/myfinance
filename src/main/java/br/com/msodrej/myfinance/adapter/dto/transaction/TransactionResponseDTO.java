@@ -1,5 +1,6 @@
 package br.com.msodrej.myfinance.adapter.dto.transaction;
 
+import br.com.msodrej.myfinance.adapter.dto.category.CategoryResponseDTO;
 import br.com.msodrej.myfinance.adapter.dto.financial.FinancialResponseDTO;
 import br.com.msodrej.myfinance.adapter.dto.user.UserResponseDTO;
 import br.com.msodrej.myfinance.domain.enums.TransactionType;
@@ -14,5 +15,8 @@ public record TransactionResponseDTO(
     TransactionType type,
     FinancialResponseDTO financial,
     UserResponseDTO user,
-    TransactionDetailsDTO details // Updated
-) {}
+    TransactionDetailsDTO details,
+    CategoryResponseDTO category
+) {
+
+}

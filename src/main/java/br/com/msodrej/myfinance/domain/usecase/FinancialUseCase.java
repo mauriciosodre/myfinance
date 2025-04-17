@@ -23,6 +23,8 @@ public class FinancialUseCase {
   private final UserUseCase userUseCase;
 
   public Financial save(Financial financial) {
+    var user = SecurityUtils.getCurrentUser().getUser();
+    financial.setOwner(user);
     return financialRepository.save(financial);
   }
 
@@ -47,6 +49,10 @@ public class FinancialUseCase {
     validateUserOwnership(financial);
 
     var userToAdd = userUseCase.findById(userId);
+
+    if (financial.getOwner().getId().equals(userToAdd.getId())) {
+      throw new SystemErrorException("Owner cannot be added to shared users");
+    }
 
     if (financial.getSharedWith().contains(userToAdd)) {
       throw new SystemErrorException(ERR009.getFormattedMessage());

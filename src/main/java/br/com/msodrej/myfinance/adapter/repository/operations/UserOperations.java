@@ -2,6 +2,7 @@ package br.com.msodrej.myfinance.adapter.repository.operations;
 
 import br.com.msodrej.myfinance.adapter.repository.mapper.UserEntityMapper;
 import br.com.msodrej.myfinance.adapter.repository.repositories.UserRepository;
+import br.com.msodrej.myfinance.adapter.repository.specifications.UserSpecification;
 import br.com.msodrej.myfinance.domain.exceptions.DatabaseErrorException;
 import br.com.msodrej.myfinance.domain.model.User;
 import br.com.msodrej.myfinance.port.repository.UserRepositoryPort;
@@ -47,9 +48,10 @@ public class UserOperations implements UserRepositoryPort {
   }
 
   @Override
-  public Page<User> findAll(Pageable pageable) {
+  public Page<User> findAll(User user, Pageable pageable) {
     try {
-      return repository.findAll(pageable).map(mapper::toModel);
+      var specification = UserSpecification.filter(user);
+      return repository.findAll(specification, pageable).map(mapper::toModel);
     } catch (Exception e) {
       throw new DatabaseErrorException("Error finding users, cause: " + e.getMessage());
     }

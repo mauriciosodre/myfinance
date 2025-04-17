@@ -19,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
@@ -62,10 +63,10 @@ class UserOperationsTest {
   void findAll() {
     var usersPage = new PageImpl<>(List.of(createUserEntity()));
     var user = createUser();
-    when(repository.findAll(any(Pageable.class))).thenReturn(usersPage);
+    when(repository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(usersPage);
     when(mapper.toModel(any(UserEntity.class))).thenReturn(user);
 
-    var result = userOperations.findAll(Pageable.unpaged());
+    var result = userOperations.findAll(User.builder().build(), Pageable.unpaged());
     Assertions.assertThat(result).isNotNull().isNotEmpty().hasSize(1).contains(user);
   }
 

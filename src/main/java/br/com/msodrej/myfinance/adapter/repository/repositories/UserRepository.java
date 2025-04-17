@@ -4,10 +4,12 @@ import br.com.msodrej.myfinance.adapter.repository.entity.UserEntity;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-public interface UserRepository extends JpaRepository<UserEntity, UUID> {
+public interface UserRepository extends JpaRepository<UserEntity, UUID>,
+    JpaSpecificationExecutor<UserEntity> {
 
   @Modifying
   @Query("update UserEntity u set u.active = :active where u.id = :id")

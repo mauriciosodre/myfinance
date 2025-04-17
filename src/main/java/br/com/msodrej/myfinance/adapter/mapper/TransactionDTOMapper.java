@@ -9,15 +9,19 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface TransactionDTOMapper {
-    @Mapping(target = "financial.id", source = "financialId")
-    @Mapping(target = "details", source = "details") // Add mapping for details
-    Transaction toModel(NewTransactionDTO dto);
 
-    @Mapping(target = "financial.id", source = "financialId")
-    @Mapping(target = "details", source = "details")
-    Transaction toModel(TransactionPayloadDTO dto);
+  @Mapping(target = "financial.id", source = "financialId")
+  @Mapping(target = "details", source = "details") // Add mapping for details
+  @Mapping(target = "category.id", source = "categoryId")
+  Transaction toModel(NewTransactionDTO dto);
 
-    @Mapping(target = "financial", source = "financial")
-    @Mapping(target = "details", source = "details") // Add mapping for details
-    TransactionResponseDTO toDTO(Transaction transaction);
+  @Mapping(target = "financial.id", source = "financialId")
+  @Mapping(target = "details", source = "details")
+  @Mapping(target = "category.id", source = "categoryId")
+  Transaction toModel(TransactionPayloadDTO dto);
+
+  @Mapping(target = "financial", source = "financial")
+  @Mapping(target = "details", source = "details")
+    // Add mapping for details
+  TransactionResponseDTO toDTO(Transaction transaction);
 }
