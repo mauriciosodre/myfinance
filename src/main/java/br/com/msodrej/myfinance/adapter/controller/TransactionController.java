@@ -5,6 +5,8 @@ import br.com.msodrej.myfinance.adapter.dto.transaction.NewTransactionDTO;
 import br.com.msodrej.myfinance.adapter.dto.transaction.TransactionPayloadDTO;
 import br.com.msodrej.myfinance.adapter.dto.transaction.TransactionResponseDTO;
 import br.com.msodrej.myfinance.adapter.mapper.TransactionDTOMapper;
+import br.com.msodrej.myfinance.domain.exceptions.SystemErrorException;
+import br.com.msodrej.myfinance.domain.usecase.TransactionExcelParser;
 import br.com.msodrej.myfinance.domain.usecase.TransactionUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +27,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TransactionController {
 
   private final TransactionUseCase transactionUseCase;
+  private final TransactionExcelParser excelParser;
   private final TransactionDTOMapper mapper;
 
   @Operation(summary = "Criar uma nova transação")
@@ -143,6 +149,26 @@ public class TransactionController {
       @PathParam(value = "month") Integer month,
       @PathParam(value = "year") Integer year) {
     return transactionUseCase.calculateFinancialPeriodCategoryExpensesReport(financialId, month, year);
+  }
+
+  @Operation(summary = "Criar múltiplas transações a partir de um arquivo Excel")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Transações criadas com sucesso"),
+      @ApiResponse(responseCode = "400", description = "Erro ao processar o arquivo ou salvar transações",
+          content = @Content(schema = @Schema(implementation = ErrorDetails.class))),
+      @ApiResponse(responseCode = "403", description = "Unauthorized")
+  })
+  @PostMapping("financials/{financialId}/bulk")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void bulkSave(@RequestParam("file") MultipartFile file ,
+      @PathVariable Long financialId) {
+    try {
+      var transactions = excelParser.parse(file);
+
+      transactionUseCase.saveAll(transactions, financialId);
+    } catch (IOException e) {
+      throw new SystemErrorException(e.getMessage());
+    }
   }
 
 }

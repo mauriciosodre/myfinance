@@ -54,8 +54,10 @@ public class FinancialOperations implements FinancialRepositoryPort {
           .findFirst().orElse(null);
     }
 
-    var spec = Specification.where(hasName(financial.getName()))
-        .and((hasOwnerId(financial.getOwner().getId())).or(isSharedWith(sharedWithId)));
+    var specOwner = Specification.where(hasOwnerId(financial.getOwner().getId()));
+    var specShared = Specification.where(isSharedWith(sharedWithId));
+
+    var spec = (specOwner.or(specShared)).and(hasName(financial.getName()));
 
     return financialRepository.findAll(spec, pageable).map(mapper::toModel);
   }
