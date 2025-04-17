@@ -117,4 +117,32 @@ public class TransactionController {
     return transactionUseCase.calculateFinancialPeriodSummary(financialId, startDate, endDate);
   }
 
+  @Operation(summary = "Calcula o report das transações de um financeiro dos últimos meses a partir de um mês e ano")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Report calculado com sucesso",
+          content = {@Content(mediaType = "application/json")}),
+      @ApiResponse(responseCode = "400", description = "Erro ao calcular report",
+          content = @Content(schema = @Schema(implementation = ErrorDetails.class)))})
+  @GetMapping("report/financial/{financialId}/period")
+  @ResponseStatus(HttpStatus.OK)
+  public Object calculateFinancialPeriodSummaryReport(@PathVariable Long financialId,
+      @PathParam(value = "month") Integer month,
+      @PathParam(value = "year") Integer year) {
+    return transactionUseCase.calculateFinancialPeriodSummaryReport(financialId, month, year);
+  }
+
+  @Operation(summary = "Calcula o report das transações despesas de um financeiro de um mês e ano")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Report calculado com sucesso",
+          content = {@Content(mediaType = "application/json")}),
+      @ApiResponse(responseCode = "400", description = "Erro ao calcular report",
+          content = @Content(schema = @Schema(implementation = ErrorDetails.class)))})
+  @GetMapping("report/financial/{financialId}/category_expenses/period")
+  @ResponseStatus(HttpStatus.OK)
+  public Object calculateFinancialPeriodCategoryExpensesReport(@PathVariable Long financialId,
+      @PathParam(value = "month") Integer month,
+      @PathParam(value = "year") Integer year) {
+    return transactionUseCase.calculateFinancialPeriodCategoryExpensesReport(financialId, month, year);
+  }
+
 }

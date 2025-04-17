@@ -1,5 +1,6 @@
 package br.com.msodrej.myfinance.port.repository;
 
+import br.com.msodrej.myfinance.domain.model.CategorySummary;
 import br.com.msodrej.myfinance.domain.model.PeriodSummary;
 import br.com.msodrej.myfinance.domain.model.Transaction;
 import java.math.BigDecimal;
@@ -33,7 +34,7 @@ public interface TransactionRepositoryPort {
   PeriodSummary calculatePeriodSummaryByFinancialId(Long financialId, LocalDate startDate,
       LocalDate endDate);
 
-  List<Object[]> calculateExpensesByCategory(Long financialId, LocalDate startDate,
+  List<CategorySummary> calculateExpensesByCategory(Long financialId, LocalDate startDate,
       LocalDate endDate);
 
   List<Object[]> calculateIncomesByCategory(Long financialId, LocalDate startDate,

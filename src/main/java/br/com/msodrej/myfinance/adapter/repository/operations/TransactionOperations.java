@@ -3,6 +3,7 @@ package br.com.msodrej.myfinance.adapter.repository.operations;
 import br.com.msodrej.myfinance.adapter.repository.mapper.TransactionEntityMapper;
 import br.com.msodrej.myfinance.adapter.repository.repositories.TransactionRepository;
 import br.com.msodrej.myfinance.domain.exceptions.DatabaseErrorException;
+import br.com.msodrej.myfinance.domain.model.CategorySummary;
 import br.com.msodrej.myfinance.domain.model.PeriodSummary;
 import br.com.msodrej.myfinance.domain.model.Transaction;
 import br.com.msodrej.myfinance.port.repository.TransactionRepositoryPort;
@@ -57,14 +58,16 @@ public class TransactionOperations implements TransactionRepositoryPort {
   @Override
   public Page<Transaction> findByFinancialAndDateBetween(Long financialId, LocalDate startDate,
       LocalDate endDate, Pageable pageable) {
-    return transactionRepository.findByFinancialIdAndDateBetweenOrderByDateDesc(financialId, startDate, endDate,
+    return transactionRepository.findByFinancialIdAndDateBetweenOrderByDateDesc(financialId,
+        startDate, endDate,
         pageable).map(mapper::toModel);
   }
 
   @Override
   public List<Transaction> findByFinancialAndDateBetween(Long financialId, LocalDate startDate,
       LocalDate endDate) {
-    return transactionRepository.findByFinancialIdAndDateBetweenOrderByDateDesc(financialId, startDate, endDate)
+    return transactionRepository.findByFinancialIdAndDateBetweenOrderByDateDesc(financialId,
+            startDate, endDate)
         .stream()
         .map(mapper::toModel).toList();
   }
@@ -134,16 +137,19 @@ public class TransactionOperations implements TransactionRepositoryPort {
   }
 
   @Override
-  public List<Object[]> calculateExpensesByCategory(Long financialId, LocalDate startDate,
+  public List<CategorySummary> calculateExpensesByCategory(Long financialId, LocalDate startDate,
       LocalDate endDate) {
-    String jpql = "SELECT t.description, SUM(t.amount) " +
-                  "FROM TransactionEntity t " +
-                  "WHERE t.financial.id = :financialId " +
-                  "AND t.type = 'EXPENSE' " +
-                  "AND t.date BETWEEN :startDate AND :endDate " +
-                  "GROUP BY t.description";
+    String jpql =
+        "SELECT new br.com.msodrej.myfinance.adapter.repository.dto.CategorySummaryDTO(t.category.name, SUM(t.amount)) "
+        +
+        "FROM TransactionEntity t " +
+        "WHERE t.financial.id = :financialId " +
+        "AND t.type = 'EXPENSE' " +
+        "AND t.date BETWEEN :startDate AND :endDate " +
+        "GROUP BY t.category " +
+        "ORDER BY SUM(t.amount) DESC";
 
-    var query = entityManager.createQuery(jpql);
+    var query = entityManager.createQuery(jpql, CategorySummary.class);
     query.setParameter("financialId", financialId);
     query.setParameter("startDate", startDate);
     query.setParameter("endDate", endDate);

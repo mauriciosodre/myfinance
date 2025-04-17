@@ -2,17 +2,21 @@ package br.com.msodrej.myfinance.domain.usecase;
 
 import static br.com.msodrej.myfinance.domain.enums.SystemErrorMessage.ERR005;
 import static br.com.msodrej.myfinance.domain.utils.SecurityUtils.getCurrentUser;
+import static java.time.format.TextStyle.SHORT;
 
 import br.com.msodrej.myfinance.domain.enums.SystemErrorMessage;
 import br.com.msodrej.myfinance.domain.enums.TransactionType;
 import br.com.msodrej.myfinance.domain.exceptions.SystemErrorException;
+import br.com.msodrej.myfinance.domain.model.CategorySummary;
 import br.com.msodrej.myfinance.domain.model.Financial;
 import br.com.msodrej.myfinance.domain.model.PeriodSummary;
 import br.com.msodrej.myfinance.domain.model.Transaction;
 import br.com.msodrej.myfinance.port.repository.TransactionRepositoryPort;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -95,6 +99,45 @@ public class TransactionUseCase {
 
     periodSummary.setTotalBalance(calculateBalance(financialId));
     return periodSummary;
+  }
+
+  public List<PeriodSummary> calculateFinancialPeriodSummaryReport(Long financialId, Integer month,
+      Integer year) {
+    var financial = financialUseCase.findById(financialId);
+    validateUserPermission(financial);
+
+    var summariesReport = new ArrayList<PeriodSummary>();
+
+    for (int i = 0; i < 5; i++) {
+      LocalDate date = LocalDate.of(year, month, 1);
+      date = date.minusMonths(i);
+
+      LocalDate startDate = date.withDayOfMonth(1);
+      LocalDate endDate = date.withDayOfMonth(date.lengthOfMonth());
+
+      PeriodSummary summary = transactionRepository.calculatePeriodSummaryByFinancialId(
+          financialId, startDate, endDate);
+
+      summary.setName(date.getMonth().getDisplayName(SHORT, Locale.of("pt", "BR"))
+                      + "/" + date.getYear());
+      summary.setTotalBalance(calculateBalance(financialId));
+
+      summariesReport.add(summary);
+    }
+
+    return summariesReport;
+  }
+
+  public List<CategorySummary> calculateFinancialPeriodCategoryExpensesReport(Long financialId,
+      Integer month,
+      Integer year) {
+    var financial = financialUseCase.findById(financialId);
+    LocalDate date = LocalDate.of(year, month, 1);
+
+    LocalDate startDate = date.withDayOfMonth(1);
+    LocalDate endDate = date.withDayOfMonth(date.lengthOfMonth());
+    validateUserPermission(financial);
+    return transactionRepository.calculateExpensesByCategory(financialId, startDate, endDate);
   }
 
   private void validateUserPermission(Financial financial) {
