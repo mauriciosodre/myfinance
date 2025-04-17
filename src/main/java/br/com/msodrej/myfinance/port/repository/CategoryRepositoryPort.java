@@ -12,6 +12,8 @@ public interface CategoryRepositoryPort {
 
   Optional<Category> findById(Long id);
 
+  Optional<Category> findByName(String name);
+
   Page<Category> findAll(Category category, Pageable pageable);
 
   List<Category> listAll();

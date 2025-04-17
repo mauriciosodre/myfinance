@@ -14,6 +14,8 @@ public interface TransactionRepositoryPort {
 
   Transaction save(Transaction transaction);
 
+  void saveAll(List<Transaction> transactions);
+
   Optional<Transaction> findById(Long id);
 
   Page<Transaction> findAll(Transaction transaction, Pageable pageable);
