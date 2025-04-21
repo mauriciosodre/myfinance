@@ -2,6 +2,7 @@ package br.com.msodrej.myfinance.adapter.repository.entity;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -30,8 +31,10 @@ public class CategoryEntity {
   private String description;
   private String color;
 
+  @Column(nullable = false)
   private Boolean enabled;
 
+  @Column(nullable = false)
   private Boolean deleted;
 
   @PrePersist

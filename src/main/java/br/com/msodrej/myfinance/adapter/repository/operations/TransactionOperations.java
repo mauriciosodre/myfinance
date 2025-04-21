@@ -152,7 +152,7 @@ public class TransactionOperations implements TransactionRepositoryPort {
   public List<CategorySummary> calculateExpensesByCategory(Long financialId, LocalDate startDate,
       LocalDate endDate) {
     String jpql =
-        "SELECT new br.com.msodrej.myfinance.adapter.repository.dto.CategorySummaryDTO(t.category.name, SUM(t.amount)) "
+        "SELECT new br.com.msodrej.myfinance.adapter.repository.dto.CategorySummaryDTO(t.category.name, t.category.color, SUM(t.amount)) "
         +
         "FROM TransactionEntity t " +
         "WHERE t.financial.id = :financialId " +

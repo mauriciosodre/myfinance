@@ -137,7 +137,7 @@ public class TransactionController {
     return transactionUseCase.calculateFinancialPeriodSummaryReport(financialId, month, year);
   }
 
-  @Operation(summary = "Calcula o report das transações despesas de um financeiro de um mês e ano")
+  @Operation(summary = "Calcula o report das transações por categoria de despesas de um financeiro de um mês e ano")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Report calculado com sucesso",
           content = {@Content(mediaType = "application/json")}),
