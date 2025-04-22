@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,10 +58,10 @@ public class TransactionExcelParser {
           var dateCellType = row.getCell(2).getCellType();
           if (dateCellType == CellType.STRING) {
             transaction.setDate(LocalDate.parse(row.getCell(2).getStringCellValue()));
-          } else if (dateCellType == CellType.NUMERIC) {
-            transaction.setDate(LocalDate.ofEpochDay((long) row.getCell(2).getNumericCellValue()));
           } else {
-            throw new IllegalArgumentException("Unexpected cell type " + dateCellType);
+            Date dateStr = row.getCell(2).getDateCellValue();
+            transaction.setDate(
+                LocalDate.ofInstant(dateStr.toInstant(), java.time.ZoneId.systemDefault()));
           }
 
           // Type (Column 3)
