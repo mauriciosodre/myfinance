@@ -43,6 +43,11 @@ public class CategoryOperations implements CategoryRepositoryPort {
   }
 
   @Override
+  public Optional<Category> findByName(String name) {
+    return categoryRepository.findByNameIgnoreCase(name).map(mapper::toModel);
+  }
+
+  @Override
   public Page<Category> findAll(Category category, Pageable pageable) {
     try {
       return categoryRepository.findAll(pageable).map(mapper::toModel);

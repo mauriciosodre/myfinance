@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class CategorySummary {
 
   private String categoryName;
+  private String categoryColor;
   private BigDecimal expenses;
 
 }

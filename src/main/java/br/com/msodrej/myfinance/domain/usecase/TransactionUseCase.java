@@ -44,6 +44,23 @@ public class TransactionUseCase {
     return transactionRepository.save(transaction);
   }
 
+  public void saveAll(List<Transaction> transactions, Long financialId) {
+    var financial = financialUseCase.findById(financialId);
+    validateUserPermission(financial);
+
+    for (Transaction transaction : transactions) {
+      validateTransactionDetails(transaction);
+      transaction.setFinancial(financial);
+      if (Objects.isNull(transaction.getCategory()) || Objects.isNull(
+          transaction.getCategory().getId())) {
+        transaction.setCategory(null);
+      }
+    }
+
+    transactionRepository.saveAll(transactions);
+
+  }
+
   public Transaction findById(Long id) {
     return transactionRepository.findById(id).orElseThrow(() -> new SystemErrorException(
         ERR005.getFormattedMessage(id)));

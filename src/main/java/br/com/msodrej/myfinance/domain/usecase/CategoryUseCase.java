@@ -26,6 +26,11 @@ public class CategoryUseCase {
         ERR005.getFormattedMessage(id)));
   }
 
+  public Category findByName(String name) {
+    return categoryRepository.findByName(name).orElseThrow(() -> new SystemErrorException(
+        ERR005.getFormattedMessage(name)));
+  }
+
   public Page<Category> findAll(Category category, Pageable pageable) {
     return categoryRepository.findAll(category, pageable);
   }

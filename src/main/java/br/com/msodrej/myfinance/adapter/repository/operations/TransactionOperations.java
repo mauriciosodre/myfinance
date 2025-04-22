@@ -38,6 +38,18 @@ public class TransactionOperations implements TransactionRepositoryPort {
   }
 
   @Override
+  public void saveAll(List<Transaction> transactions) {
+    try {
+      var transactionEntities = transactions.stream()
+          .map(mapper::toEntity)
+          .toList();
+      transactionRepository.saveAll(transactionEntities);
+    }catch (Exception e) {
+      throw new DatabaseErrorException("Error saving transactions, cause: " + e.getMessage());
+    }
+  }
+
+  @Override
   public Optional<Transaction> findById(Long id) {
     try {
       return transactionRepository.findById(id).map(mapper::toModel);
@@ -140,7 +152,7 @@ public class TransactionOperations implements TransactionRepositoryPort {
   public List<CategorySummary> calculateExpensesByCategory(Long financialId, LocalDate startDate,
       LocalDate endDate) {
     String jpql =
-        "SELECT new br.com.msodrej.myfinance.adapter.repository.dto.CategorySummaryDTO(t.category.name, SUM(t.amount)) "
+        "SELECT new br.com.msodrej.myfinance.adapter.repository.dto.CategorySummaryDTO(t.category.name, t.category.color, SUM(t.amount)) "
         +
         "FROM TransactionEntity t " +
         "WHERE t.financial.id = :financialId " +
