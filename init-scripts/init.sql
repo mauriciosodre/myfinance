@@ -107,7 +107,7 @@ SELECT nextval('role_seq'), 'USER'
 -- Limpar categorias existentes (opcional - remova ou comente esta linha se quiser manter categorias existentes)
 -- DELETE FROM public.categories;
 
--- Inserir categorias de DESPESAS (~18 categorias)
+-- Inserir categorias de DESPESAS
 INSERT INTO public.categories (id, name, description, color, enabled, deleted)
 SELECT nextval('category_seq'), 'Alimentação', 'Gastos com alimentação e supermercado', '#FF5733', true, false
     WHERE NOT EXISTS (SELECT 1 FROM public.categories WHERE name = 'Alimentação');

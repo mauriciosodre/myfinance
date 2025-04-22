@@ -33,18 +33,14 @@ services:
     networks:
       - myfinance-network
 
-#  frontend:
-#    build:
-#      context: ./frontend
-#      dockerfile: Dockerfile
-#    ports:
-#      - "8081:8081"
-#    environment:
-#      VITE_API_URL: http://app:8080
-#    depends_on:
-#      - app
-#    networks:
-#      - myfinance-network
+  frontend:
+    image: msodrejr/myfinance-dash:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    networks:
+      - myfinance-network
 
 volumes:
   postgres_data:

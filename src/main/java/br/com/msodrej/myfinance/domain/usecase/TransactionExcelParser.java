@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -41,16 +41,28 @@ public class TransactionExcelParser {
 
         try {
           // Amount (Column 0)
-          transaction.setAmount(new BigDecimal(row.getCell(0).getStringCellValue()));
+          var cellType = row.getCell(0).getCellType();
+          if (cellType == CellType.NUMERIC) {
+            transaction.setAmount(BigDecimal.valueOf(row.getCell(0).getNumericCellValue()));
+          } else if (cellType == CellType.STRING) {
+            transaction.setAmount(new BigDecimal(row.getCell(0).getStringCellValue()));
+          } else {
+            log.error("Unexpected cell type {}", cellType);
+          }
 
           // Description (Column 1)
           transaction.setDescription(row.getCell(1).getStringCellValue());
 
           // Date (Column 2)
-          Date dateStr = row.getCell(2).getDateCellValue();
-//                    transaction.setDate(LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-          transaction.setDate(
-              LocalDate.ofInstant(dateStr.toInstant(), java.time.ZoneId.systemDefault()));
+          var dateCellType = row.getCell(2).getCellType();
+          if (dateCellType == CellType.STRING) {
+            transaction.setDate(LocalDate.parse(row.getCell(2).getStringCellValue()));
+          } else if (dateCellType == CellType.NUMERIC) {
+            transaction.setDate(LocalDate.ofEpochDay((long) row.getCell(2).getNumericCellValue()));
+          } else {
+            throw new IllegalArgumentException("Unexpected cell type " + dateCellType);
+          }
+
           // Type (Column 3)
           String typeStr = row.getCell(3).getStringCellValue().toUpperCase();
           transaction.setType(TransactionType.valueOf(typeStr));
