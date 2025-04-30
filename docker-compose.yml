@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/myfinance
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      TOKEN_SIGNING_KEY: ${JWT_SIGNING_KEY:-wUU1GMReGll6rMeJRv8tNtJRZeyvCeIQQWvlKxIUC6HfBoBWxOMHeo6okvLK0GTbEvdtDePo8ilIbW4937q9yg==}
+      EXCHANGE_RATES_API_KEY: ${EXCHANGE_RATES_API_KEY:-your_api_key}
+    depends_on:
+      - db
+    networks:
+      - myfinance-network
+
+  db:
+    image: postgres:15.2-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: myfinance
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - myfinance-network
+
+  frontend:
+    image: msodrejr/myfinance-dash:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    networks:
+      - myfinance-network
+
+volumes:
+  postgres_data:
+
+networks:
+  myfinance-network:
+    driver: bridge
